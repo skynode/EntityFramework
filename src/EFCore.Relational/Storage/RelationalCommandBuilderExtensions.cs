@@ -249,6 +249,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter" />s in the
+        ///     final command.
+        /// </summary>
+        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="invariantName">
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
+        ///     placeholder for a parameter and not the actual value. This is because the same command can be
+        ///     reused multiple times with different parameter values.
+        /// </param>
+        /// <param name="dbParameter">Some text</param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static IRelationalCommandBuilder AddRawParameter(
+            [NotNull] this IRelationalCommandBuilder commandBuilder,
+            [NotNull] string invariantName,
+            [NotNull] DbParameter dbParameter)
+        {
+            Check.NotNull(commandBuilder, nameof(commandBuilder));
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotNull(dbParameter, nameof(dbParameter));
+
+            commandBuilder.ParameterBuilder.AddRawParameter(invariantName, dbParameter);
+
+            return commandBuilder;
+        }
+
+        /// <summary>
         ///     Adds a parameter.
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>

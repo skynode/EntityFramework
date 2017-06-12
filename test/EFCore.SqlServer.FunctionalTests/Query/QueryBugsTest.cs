@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using System.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
 
@@ -1913,6 +1914,89 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
                     });
 
         #endregion
+
+        [Fact]
+        public virtual void Test()
+        {
+            using (var db = new MyContext())
+            {
+                //// Recreate database
+                //db.Database.EnsureDeleted();
+                //db.Database.EnsureCreated();
+
+                //// Seed database
+
+
+                //db.SaveChanges();
+            }
+
+            using (var db = new MyContext())
+            {
+                // Run queries
+
+                //var result1 = query1.ToList();
+
+                var query1 = db.Blogs
+                    .FromSql("SELECT * FROM Blogs WHERE Id >= @Param1", new SqlParameter("@Param1", 123))
+                    .Select(r => r.Id).ToList();
+
+                var result3 = db.Posts.Where(
+                    p => db.Blogs
+                        .FromSql("SELECT * FROM Blogs WHERE Id >= @Param1", new SqlParameter("@Param1", 123))
+                        .Select(r => r.Id).Contains(p.BlogId)).ToList();
+
+                //var result3 = db.Posts.Where(
+                //    p => db.Blogs
+                //        .FromSql("SELECT Top({0}) * FROM Blogs WHERE Id >= @Param1", 15, new SqlParameter("@Param1", 123))
+                //        .Select(r => r.Id).Contains(p.BlogId)).ToList();
+
+                ////OK
+                //var test3 = db.Table2.Join(q_sql_func, t2 => t2.ID1, t1 => t1.ID1, (t2, t1) => t1).ToList();
+
+                ////ERROR: Must declare the scalar variable "@Param1"
+                //var test4 = db.Table2.Where(r => q_sql_func2.Contains(r.ID1)).ToList();
+
+                ////ERROR: No mapping to a relational type can be found for the CLR type 'SqlParameter'
+                //var test5 = db.Table2
+                //    .GroupBy(r => r.ID2)
+                //    .Select(g => g.Key)
+                //    .Where(id => q_sql_func2.Contains(id))
+                //    .ToList();
+            }
+
+        }
+
+
+        public class MyContext : DbContext
+        {
+            // Declare DBSets
+            public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Post> Posts { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                // Select 1 provider
+                optionsBuilder
+                    .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=_ModelApp;Trusted_Connection=True;Connect Timeout=5;ConnectRetryCount=0");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                // Configure model
+            }
+        }
+
+        public class Blog
+        {
+            public int Id { get; set; }
+        }
+
+        public class Post
+        {
+            public int Id { get; set; }
+            public int BlogId { get; set; }
+            public Blog Blog { get; set; }
+        }
 
         private DbContextOptions _options;
 
