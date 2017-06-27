@@ -3338,7 +3338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: false,
                 entryCount: 8);
         }
-        
+
         [ConditionalFact]
         public virtual void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
         {
@@ -3796,6 +3796,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Comparing_to_fixed_string_parameter()
+        {
+            AssertQuery<Customer>(cs => FindLike(cs, "A"));
+        }
+
+        private static IQueryable<string> FindLike(IQueryable<Customer> cs, string prefix)
+            => from c in cs
+               where c.CustomerID.StartsWith(prefix)
+               select c.CustomerID;
+
+        [ConditionalFact]
         public virtual void Comparing_entities_using_Equals()
         {
             AssertQuery<Customer, Customer>(
@@ -3935,6 +3946,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where c.Orders == o.Customer.Orders
                             orderby c.CustomerID, o.OrderID
                             select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ThenBy_same_column_different_direction()
+        {
+            AssertQuery<Customer>(
+                cs => cs
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .ThenByDescending(c => c.CustomerID)
+                    .Select(c => c.CustomerID),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_OrderBy_same_column_different_direction()
+        {
+            AssertQuery<Customer>(
+                cs => cs
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .OrderByDescending(c => c.CustomerID)
+                    .Select(c => c.CustomerID),
+                assertOrder: true);
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();

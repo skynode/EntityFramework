@@ -74,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return;
             }
 
-            foreach (var includeLoadTree
-                in CreateIncludeLoadTrees(queryModel.SelectClause.Selector))
+            foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
             {
                 includeLoadTree.Compile(
                     _queryCompilationContext,
@@ -112,8 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(
-            Expression targetExpression)
+        private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(QueryModel queryModel)
         {
             var querySourceTracingExpressionVisitor
                 = _querySourceTracingExpressionVisitorFactory.Create();
@@ -127,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var querySourceReferenceExpression
                     = querySourceTracingExpressionVisitor
                         .FindResultQuerySourceReferenceExpression(
-                            targetExpression,
+                            queryModel.GetOutputExpression(),
                             includeResultOperator.QuerySource);
 
                 if (querySourceReferenceExpression == null

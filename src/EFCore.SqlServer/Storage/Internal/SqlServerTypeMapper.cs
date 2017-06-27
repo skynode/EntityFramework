@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("decimal(18, 2)");
 
-        private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time");
+        private readonly TimeSpanTypeMapping _time = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
 
@@ -224,6 +224,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IStringRelationalTypeMapper StringMapper { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override RelationalTypeMapping GetParameterTypeMapping(RelationalTypeMapping typeMapping)
+            => typeof(string) == typeMapping.ClrType
+                ? StringMapper.FindMapping(typeMapping.IsUnicode, keyOrIndex: false, maxLength: null)
+                : base.GetParameterTypeMapping(typeMapping);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

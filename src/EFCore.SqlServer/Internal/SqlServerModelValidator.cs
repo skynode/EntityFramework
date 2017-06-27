@@ -68,23 +68,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         protected override void ValidateSharedTableCompatibility(
-            IEntityType newEntityType, List<IEntityType> otherMappedTypes, string tableName)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName)
         {
-            var isMemoryOptimized = newEntityType.SqlServer().IsMemoryOptimized;
+            var firstMappedType = mappedTypes[0];
+            var isMemoryOptimized = firstMappedType.SqlServer().IsMemoryOptimized;
 
-            foreach (var otherMappedType in otherMappedTypes)
+            foreach (var otherMappedType in mappedTypes.Skip(1))
             {
                 if (isMemoryOptimized != otherMappedType.SqlServer().IsMemoryOptimized)
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
-                            tableName, newEntityType.DisplayName(), otherMappedType.DisplayName(),
-                            isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName(),
-                            !isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName()));
+                            tableName, firstMappedType.DisplayName(), otherMappedType.DisplayName(),
+                            isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName(),
+                            !isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName()));
                 }
             }
 
-            base.ValidateSharedTableCompatibility(newEntityType, otherMappedTypes, tableName);
+            base.ValidateSharedTableCompatibility(mappedTypes, tableName);
         }
 
         protected override void ValidateSharedColumnsCompatibility(IReadOnlyList<IEntityType> mappedTypes, string tableName)
@@ -98,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (identityColumns.Count > 1)
             {
-                var sb = new StringBuilder();
-                sb.AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
+                var sb = new StringBuilder()
+                    .AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
                 throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
             }
         }

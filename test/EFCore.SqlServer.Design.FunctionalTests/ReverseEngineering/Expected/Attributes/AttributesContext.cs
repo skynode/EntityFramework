@@ -28,7 +28,7 @@ namespace E2ETest.Namespace.SubDir
         {
             if (!optionsBuilder.IsConfigured)
             {
-                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer(@"{{connectionString}}");
             }
         }
@@ -128,7 +128,8 @@ namespace E2ETest.Namespace.SubDir
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 });
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
+                    .ForSqlServerIsClustered(false);
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyPrincipalUniqueKey1, e.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")

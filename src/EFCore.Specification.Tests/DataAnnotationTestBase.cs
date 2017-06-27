@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -797,8 +798,6 @@ namespace Microsoft.EntityFrameworkCore
             var version = entity.FindProperty(nameof(GeneratedEntity.Version));
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
             Assert.True(version.RequiresValueGenerator());
-
-            Validate(modelBuilder);
 
             return modelBuilder;
         }

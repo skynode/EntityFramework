@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
@@ -338,11 +340,11 @@ WHERE [k].[Discriminator] = N'Kiwi'");
 FROM [Country] AS [c]
 WHERE [c].[Id] = 1",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p0='Apteryx owenii' (Nullable = false) (Size = 4000)
 @p1='1'
 @p2='Kiwi' (Nullable = false) (Size = 4000)
 @p3='Little spotted kiwi' (Size = 4000)
-@p4='' (Size = 100) (DbType = String)
+@p4='' (Size = 4000) (DbType = String)
 @p5='True'
 @p6='North'
 
@@ -354,8 +356,8 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
                 //
-                @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
-@p0='Aquila chrysaetos canadensis' (Size = 100)
+                @"@p1='Apteryx owenii' (Nullable = false) (Size = 4000)
+@p0='Aquila chrysaetos canadensis' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Animal] SET [EagleId] = @p0
@@ -366,7 +368,7 @@ SELECT @@ROWCOUNT;",
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p0='Apteryx owenii' (Nullable = false) (Size = 4000)
 
 SET NOCOUNT ON;
 DELETE FROM [Animal]
@@ -377,6 +379,9 @@ SELECT @@ROWCOUNT;",
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')");
         }
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

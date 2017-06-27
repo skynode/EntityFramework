@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 executeMethod,
                 commandId,
                 connection.ConnectionId,
-                async: false, 
+                async: false,
                 startTime: startTime);
 
             object result;
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 executeMethod,
                 commandId,
                 connection.ConnectionId,
-                async: true, 
+                async: true,
                 startTime: startTime);
 
             object result;
@@ -401,15 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 foreach (var parameter in Parameters)
                 {
-                    if (parameterValues.TryGetValue(parameter.InvariantName, out var parameterValue))
-                    {
-                        parameter.AddDbParameter(command, parameterValue);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.MissingParameterValue(parameter.InvariantName));
-                    }
+                    parameter.AddDbParameter(command, parameterValues);
                 }
             }
 
